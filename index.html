@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>貨架結構計算模擬器 V6.0</title>
     <style>
-        body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background-color: #f8fafc; color: #334155; margin: 0; padding: 20px; }
+        body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background-color: #f8fafc; color: #334155; margin: 0; padding: 20px; padding-bottom: 60px; }
         .container { max-width: 1400px; margin: 0 auto; background: white; display: flex; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; min-height: 900px; }
         
         /* 左側參數區 */
-        .sidebar { flex: 0 0 380px; background: #fff; padding: 25px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; max-height: 950px; box-sizing: border-box; }
+        .sidebar { flex: 0 0 420px; background: #fff; padding: 25px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; max-height: 950px; box-sizing: border-box; }
         
         h2 { margin: 0 0 15px 0; color: #1e293b; font-size: 18px; border-left: 4px solid #3b82f6; padding-left: 10px; font-weight: 700; }
         .section { margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #f1f5f9; }
@@ -22,7 +22,6 @@
         input:focus, select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
         input[readonly] { background-color: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; cursor: default; }
         
-        /* I值灰色小字樣式 */
         .i-value-wrapper { display: flex; justify-content: flex-end; align-items: center; margin-top: 5px; }
         .i-value-label { font-size: 12px; color: #cbd5e1; margin-right: 5px; }
         .i-value-text { font-size: 12px; color: #94a3b8; border: none; background: transparent; text-align: right; width: 80px; padding: 0; pointer-events: none; }
@@ -33,7 +32,7 @@
         button:hover { background: #2563eb; }
 
         /* 結果儀表板 */
-        .results-panel { margin-top: 20px; }
+        .results-panel { margin-top: 20px; border-top: 2px dashed #e2e8f0; padding-top: 20px; }
         .res-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #cbd5e0; }
         .res-card.safe { border-left-color: #22c55e; background: #f0fdf4; }
         .res-card.danger { border-left-color: #ef4444; background: #fef2f2; }
@@ -45,11 +44,32 @@
         .res-main { font-size: 22px; font-weight: 800; color: #0f172a; }
         .res-sub { font-size: 12px; color: #64748b; }
 
+        /* 計算細節區 (新) */
+        .calc-details { margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 6px; font-size: 12px; color: #475569; display: none; border: 1px solid #e2e8f0; }
+        .calc-details h3 { margin: 0 0 10px 0; font-size: 13px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        .calc-row { margin-bottom: 8px; font-family: Consolas, monospace; }
+        .calc-formula { color: #2563eb; display: block; margin-bottom: 2px; }
+        .calc-val { color: #0f172a; padding-left: 10px; border-left: 2px solid #cbd5e1; }
+        
+        .sf-standards { margin-top: 10px; font-size: 11px; color: #64748b; background: #fff; padding: 8px; border-radius: 4px; border: 1px dashed #cbd5e1; }
+        .sf-level { display: flex; justify-content: space-between; margin-bottom: 2px; }
+
         /* 右側視覺區 */
         .visualizer { flex: 1; background: #1e293b; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         canvas { background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-height: 90vh; }
         .legend { margin-top: 15px; color: #cbd5e0; font-size: 12px; display: flex; gap: 15px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
+        /* 底部懸浮版本紀錄 */
+        .changelog-btn { position: fixed; bottom: 20px; right: 20px; background: #475569; color: white; padding: 10px 20px; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 14px; font-weight: bold; z-index: 1000; transition: 0.3s; }
+        .changelog-btn:hover { background: #334155; transform: translateY(-2px); }
+        
+        .changelog-panel { position: fixed; bottom: 80px; right: 20px; width: 350px; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 20px; z-index: 999; display: none; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; }
+        .changelog-panel h3 { margin-top: 0; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .log-item { margin-bottom: 15px; font-size: 13px; }
+        .log-ver { font-weight: bold; color: #3b82f6; display: block; margin-bottom: 4px; }
+        .log-desc { color: #64748b; line-height: 1.5; margin: 0; padding-left: 10px; border-left: 3px solid #f1f5f9; }
+
     </style>
 </head>
 <body>
@@ -81,7 +101,6 @@
 
         <div class="section" style="border-left: 4px solid #8b5cf6;">
             <h2>2. 橫樑規格</h2>
-            
             <label>橫樑類型</label>
             <select id="beam-type" onchange="updateBeamPreset()">
                 <option value="C">C樑</option>
@@ -162,7 +181,16 @@
                     <span id="status-col" class="res-status">計算中</span>
                 </div>
                 <div class="res-main" id="val-col-sf">-</div>
-                <div class="res-sub">狀態: <span id="val-col-msg">-</span></div>
+                <div class="sf-standards">
+                    <div class="sf-level"><span style="color:#ef4444">● 危險 (Collapse)</span> <span>SF < 1.0</span></div>
+                    <div class="sf-level"><span style="color:#f59e0b">● 警告 (Unstable)</span> <span>1.0 ≤ SF < 2.0</span></div>
+                    <div class="sf-level"><span style="color:#22c55e">● 安全 (Safe)</span> <span>SF ≥ 2.0</span></div>
+                </div>
+            </div>
+
+            <div id="calc-details" class="calc-details">
+                <h3>🧮 計算過程詳解</h3>
+                <div id="calc-content"></div>
             </div>
         </div>
     </div>
@@ -174,6 +202,50 @@
             <div><span class="dot" style="background:#22c55e;"></span>立柱</div>
             <div><span class="dot" style="background:#ef4444;"></span>變形警示</div>
         </div>
+    </div>
+</div>
+
+<div class="changelog-btn" onclick="toggleChangelog()">📜 版本紀錄 (Changelog)</div>
+<div class="changelog-panel" id="changelog-panel">
+    <h3>版本更新歷程</h3>
+    
+    <div class="log-item">
+        <span class="log-ver">V6.0 (Current)</span>
+        <p class="log-desc">
+            1. 介面精簡優化，移除標題括號。<br>
+            2. 新增計算過程詳細列式。<br>
+            3. 明確列出安全係數判定標準。<br>
+            4. 慣性矩計算採用幾何扣除法 (C樑-4t, G樑-3t, B樑-2t)。
+        </p>
+    </div>
+    <div class="log-item">
+        <span class="log-ver">V5.0</span>
+        <p class="log-desc">
+            1. 修正橫樑慣性矩公式，與 PDF 數據完全校正。<br>
+            2. 橫樑寬度鎖定為 50mm。<br>
+            3. 慣性矩 I 值改為唯讀顯示。
+        </p>
+    </div>
+    <div class="log-item">
+        <span class="log-ver">V4.0</span>
+        <p class="log-desc">
+            1. 新增 C/B/G 三種樑型選項。<br>
+            2. 內建不同樑型的修正係數。
+        </p>
+    </div>
+    <div class="log-item">
+        <span class="log-ver">V3.0</span>
+        <p class="log-desc">
+            1. 整合立柱與橫樑計算於同一介面。<br>
+            2. 新增最大層距 (Max Span) 邏輯。
+        </p>
+    </div>
+    <div class="log-item">
+        <span class="log-ver">V1.0 - V2.0</span>
+        <p class="log-desc">
+            1. 基礎立柱挫屈計算。<br>
+            2. 引入 Canvas 視覺化模擬。
+        </p>
     </div>
 </div>
 
@@ -226,43 +298,22 @@
         }
     }
 
-    // --- 橫樑切換與 I值計算 (V6.0 精確版) ---
     function updateBeamPreset() {
         const type = document.getElementById('beam-type').value;
-        // 依據您的檔案設定標準高度
-        if (type === 'C') {
-            document.getElementById('beam-h').value = 100;
-        } else if (type === 'G') {
-            document.getElementById('beam-h').value = 120;
-        } else if (type === 'B') {
-            document.getElementById('beam-h').value = 105;
-        }
+        if (type === 'C') document.getElementById('beam-h').value = 100;
+        else if (type === 'G') document.getElementById('beam-h').value = 120;
+        else if (type === 'B') document.getElementById('beam-h').value = 105;
         reCalcI();
     }
 
     function reCalcI() {
         const type = document.getElementById('beam-type').value;
         const H = parseFloat(document.getElementById('beam-h').value);
-        const W = 50; // 鎖定
+        const W = 50; 
         const t = parseFloat(document.getElementById('beam-t').value);
         
-        let h_inner = 0;
+        let h_inner = H - (type === 'C' ? 4*t : (type === 'G' ? 3*t : 2*t));
         let w_inner = W - 2*t; 
-
-        // 依據檔案參數驗證後的精確幾何扣除邏輯
-        if (type === 'B') {
-            // B樑: 內高 = H - 2t
-            h_inner = H - 2*t;
-        } else if (type === 'C') {
-            // C樑: 內高 = H - 4t (94 = 100 - 4*1.5)
-            h_inner = H - 4*t;
-        } else if (type === 'G') {
-            // G樑: 內高 = H - 3t (115.5 = 120 - 3*1.5)
-            h_inner = H - 3*t;
-        }
-
-        // 慣性矩公式 (矩形管中空扣除)
-        // I = (W*H^3 - w*h^3) / 12
         const I_val = (W * Math.pow(H,3) - w_inner * Math.pow(h_inner, 3)) / 12;
 
         document.getElementById('beam-I-disp').value = (I_val / 10000).toFixed(2);
@@ -272,10 +323,13 @@
     function autoUpdateSpan() {
         const h = parseFloat(document.getElementById('h-total').value);
         const l = parseFloat(document.getElementById('levels').value);
-        if(h && l) {
-            document.getElementById('max-span').value = (h / l).toFixed(2);
-        }
+        if(h && l) document.getElementById('max-span').value = (h / l).toFixed(2);
         calc();
+    }
+
+    function toggleChangelog() {
+        const panel = document.getElementById('changelog-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     }
 
     function calc() {
@@ -292,7 +346,9 @@
 
         document.getElementById('vis-beam-label').innerText = beamType + "樑";
 
-        // Beam Calc
+        // --- 計算核心 ---
+        
+        // 1. Beam
         const loadBeam = loadLayer / 2; 
         const E_beam = 21000; 
         const I_beam_mm4 = beamI_cm4 * 10000;
@@ -300,7 +356,7 @@
         const limitBeam = beamLen / 250;
         const isBeamSafe = deltaBeam <= limitBeam;
 
-        // Col Calc
+        // 2. Col
         const totalRackLoad = loadLayer * layers;
         const loadLeg = totalRackLoad / 4; 
         const loadLeg_N = loadLeg * 9.8;
@@ -310,7 +366,8 @@
         const P_crit_N = (Math.pow(Math.PI, 2) * E_col * Iy_mm4) / Math.pow(L_eff_mm, 2);
         const sf = P_crit_N / loadLeg_N;
 
-        // UI Update
+        // --- 更新 UI 顯示 ---
+        
         const elBeamVal = document.getElementById('val-beam-def');
         const elBeamCard = document.getElementById('card-beam');
         const elBeamStatus = document.getElementById('status-beam');
@@ -331,7 +388,6 @@
         const elColVal = document.getElementById('val-col-sf');
         const elColCard = document.getElementById('card-col');
         const elColStatus = document.getElementById('status-col');
-        const elColMsg = document.getElementById('val-col-msg');
 
         elColVal.innerText = sf.toFixed(2);
 
@@ -341,19 +397,47 @@
             elColCard.className = "res-card danger";
             elColStatus.innerText = "危險";
             elColStatus.style.background = "#fee2e2"; elColStatus.style.color = "#991b1b";
-            elColMsg.innerText = "結構有倒塌風險";
         } else if (sf < 2.0) {
             colState = 1;
             elColCard.className = "res-card warning";
             elColStatus.innerText = "不穩";
             elColStatus.style.background = "#fef3c7"; elColStatus.style.color = "#92400e";
-            elColMsg.innerText = "安全係數偏低";
         } else {
             elColCard.className = "res-card safe";
             elColStatus.innerText = "安全";
             elColStatus.style.background = "#dcfce7"; elColStatus.style.color = "#166534";
-            elColMsg.innerText = "設計符合標準";
         }
+
+        // --- 生成計算過程 (Requirement 1) ---
+        const detailsDiv = document.getElementById('calc-details');
+        const contentDiv = document.getElementById('calc-content');
+        detailsDiv.style.display = "block";
+        
+        contentDiv.innerHTML = `
+            <div class="calc-row">
+                <span class="calc-formula">1. 橫樑慣性矩 (I)</span>
+                <div class="calc-val">公式: (WH³ - wh³) / 12</div>
+                <div class="calc-val">I = ${beamI_cm4.toFixed(2)} cm⁴ = ${I_beam_mm4.toFixed(0)} mm⁴</div>
+            </div>
+            <div class="calc-row">
+                <span class="calc-formula">2. 橫樑撓度 (δ)</span>
+                <div class="calc-val">公式: (5 × W × L³) / (384 × E × I)</div>
+                <div class="calc-val">W=${loadBeam}kg, L=${beamLen}mm, E=${E_beam}</div>
+                <div class="calc-val">δ = ${(5 * loadBeam * Math.pow(beamLen, 3) / (384 * E_beam * I_beam_mm4)).toFixed(2)} mm</div>
+            </div>
+            <div class="calc-row">
+                <span class="calc-formula">3. 立柱臨界載重 (Pcr)</span>
+                <div class="calc-val">公式: (π² × E × Iy) / L²</div>
+                <div class="calc-val">E=${E_col}, Iy=${Iy_mm4.toFixed(0)}, L=${L_eff_mm}</div>
+                <div class="calc-val">Pcr = ${(P_crit_N/9.8).toFixed(0)} kg</div>
+            </div>
+            <div class="calc-row">
+                <span class="calc-formula">4. 安全係數 (SF)</span>
+                <div class="calc-val">公式: Pcr / P_actual</div>
+                <div class="calc-val">P_actual = ${loadLeg.toFixed(0)} kg</div>
+                <div class="calc-val">SF = ${sf.toFixed(2)}</div>
+            </div>
+        `;
 
         drawSystem(hTotal, maxSpan, layers, deltaBeam, limitBeam, colState, sf);
     }
@@ -428,7 +512,7 @@
 
     window.onload = function() {
         initDropdowns();
-        updateBeamPreset(); // Init beam I
+        updateBeamPreset(); 
     };
 </script>
 
